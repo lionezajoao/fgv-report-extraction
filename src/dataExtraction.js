@@ -141,18 +141,33 @@ export default class DataExtraction extends Utils {
     async fillAgentForm() {
         const frame  = await this.switchToFrame();
 
-        await frame.waitForSelector('input[name="ctl00$SistemaContentPlaceHolder$UC_FiltroRelatorio$txtDataInicio"]');
-        const startDate = await frame.$('input[name="ctl00$SistemaContentPlaceHolder$UC_FiltroRelatorio$txtDataInicio"]');
-        const endDate = await frame.$('input[name="ctl00$SistemaContentPlaceHolder$UC_FiltroRelatorio$txtDataTermino"]');
+        await frame.waitForSelector('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
+        const startDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
+        
         await startDate.click();
-        await this.sleep(1);
         await this.page.keyboard.down('Control');
         await this.page.keyboard.down('ArrowLeft');
         await this.page.keyboard.up('Control');
+        await startDate.type(this.lastYear.replaceAll("/", ""));
+        await this.page.keyboard.down('Enter');
+
         await this.sleep(1);
-        await startDate.type(this.lastYear);
+        const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
+        await endDate.click();
+        await this.page.keyboard.down('Control');
+        await this.page.keyboard.down('ArrowLeft');
+        await this.page.keyboard.up('Control');
+        await endDate.type(this.today.replaceAll("/", ""));
+        await this.page.keyboard.down('Enter');
+
+        await this.sleep(1);
         
-        // await endDate.type(this.today);
+        await frame.select('select[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ddlPrograma"]', "TODOS");
+
+        await this.sleep(1);
+
+        await frame.click('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ConsultarButton"');
+
         await this.sleep(100);
     }
 
