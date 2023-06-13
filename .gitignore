@@ -1,0 +1,10 @@
+.env
+forms/*.xlsx
+temp/*.xlsx
+output/*.xlsx
+
+*.log
+Pipfile.lock
+
+/*/__pycache__/
+/node_modules
