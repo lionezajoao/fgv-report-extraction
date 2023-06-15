@@ -109,6 +109,12 @@ export default class DataExtraction extends Utils {
         return await (await this.page.$('iframe')).contentFrame();
     }
 
+    async pressDate(page, date) {
+        for (let i in date) {
+            await page.keyboard.press(date[i]);
+        }
+    }
+
     async setToProfile(name) {
         console.log(`Setting to profile ${ name }`);
         await this.waitForClick('//*[contains(@class, "m-menu__link-text") and contains(text(), "S2")]');
@@ -146,10 +152,12 @@ export default class DataExtraction extends Utils {
         
         await startDate.click();
         await this.page.keyboard.down('Control');
-        await this.page.keyboard.down('ArrowLeft');
+        await this.page.keyboard.press('ArrowLeft');
         await this.page.keyboard.up('Control');
         await startDate.type(this.lastYear.replaceAll("/", ""));
-        await this.page.keyboard.down('Enter');
+        // await this.pressDate(this.page, this.lastYear.replaceAll("/", ""));
+        await this.page.keyboard.press("Tab")
+        // await this.page.keyboard.down('Enter');
 
         await this.sleep(1);
         const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
@@ -157,8 +165,9 @@ export default class DataExtraction extends Utils {
         await this.page.keyboard.down('Control');
         await this.page.keyboard.down('ArrowLeft');
         await this.page.keyboard.up('Control');
-        await endDate.type(this.today.replaceAll("/", ""));
-        await this.page.keyboard.down('Enter');
+        // await endDate.type(this.today.replaceAll("/", ""));
+        // await this.pressDate(this.page, this.today.replaceAll("/", ""));
+        await this.page.keyboard.press("Tab")
 
         await this.sleep(1);
         
