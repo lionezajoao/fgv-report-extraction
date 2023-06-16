@@ -50,13 +50,14 @@ export default class DataExtraction extends Utils {
         if (baseUrl === "failed") throw new Error("LOGIN FAILED");
         try {
             browser = await puppeteer.launch({
-                headless: false,
+                headless: "new",
                 ignoreHTTPSErrors: true,
                 executablePath: executablePath(),
                 args: [
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
                     "--window-size=1920,1080",
+                    `--download-default-directory=${ this.path }/temp`
                 ],
             });
 
@@ -76,6 +77,7 @@ export default class DataExtraction extends Utils {
             })
             await this.setPageConfig();
             await this.page.goto(baseUrl);
+            await this.getManagerForms();
             await this.getAgentForms();
             
         } catch (error) {
@@ -123,61 +125,75 @@ export default class DataExtraction extends Utils {
     }
 
     async handlerManagerMethod(interested=null) {
-        console.log("Getting form");
-        const frame = await this.switchToFrame();
-        const yearSelector = await frame.$('xpath/' + '//*[@name="ctl00$SistemaContentPlaceHolder$ddlAno"]');
-        await yearSelector.select('2023');
+        try {
+            console.log("Getting form");
+            const frame = await this.switchToFrame();
+            await frame.select('#SistemaContentPlaceHolder_ddlAno', '2023');
 
-        await this.sleep(2);
-        
-        if(interested) {
-            await( await frame.$('xpath/' + '//*[@type="radio" and @value="2"]')).click();
-        };
+            await this.sleep(2);
+            
+            if(interested) {
+                await( await frame.$('xpath/' + '//*[@type="radio" and @value="2"]')).click();
+            };
 
-        await( await frame.$('xpath/' + '//*[@value="Consultar"]')).click();
-        await this.sleep(10);
+            await( await frame.$('xpath/' + '//*[@value="Consultar"]')).click();
+            await this.sleep(10);
 
-        await( await frame.$('#ctl00_SistemaContentPlaceHolder_rptCandidatosIncritos_ctl05_ctl04_ctl00_Button')).click();
-        await( await frame.$('a[title="EXCEL"]') ).click();
-        await frame.click('input[name="ctl00$SistemaContentPlaceHolder$btnVoltar"]');
-        await this.page.bringToFront();
-        await this.sleep(5);
+            await( await frame.$('#ctl00_SistemaContentPlaceHolder_rptCandidatosIncritos_ctl05_ctl04_ctl00_Button')).click();
+            await( await frame.$('a[title="EXCEL"]') ).click();
+            let newFile = this.listTempFiles();
+            while (newFile.length == 0) {
+                await this.sleep(1);
+                newFile = this.listTempFiles();
+            }
+            await frame.click('input[name="ctl00$SistemaContentPlaceHolder$btnVoltar"]');
+            await this.page.bringToFront();
+            await this.sleep(5);
+        } catch (e) {
+            console.log(e);
+        }
     }
+
+    async fillDate(elem, date) {
+        await this.sleep(1);
+        await elem.type(date);
+        await this.page.keyboard.press('Tab');
+    } 
 
     async fillAgentForm() {
         const frame  = await this.switchToFrame();
 
         await frame.waitForSelector('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
-        const startDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
-        
-        await startDate.click();
-        await this.page.keyboard.down('Control');
-        await this.page.keyboard.press('ArrowLeft');
-        await this.page.keyboard.up('Control');
-        await startDate.type(this.lastYear.replaceAll("/", ""));
-        // await this.pressDate(this.page, this.lastYear.replaceAll("/", ""));
-        await this.page.keyboard.press("Tab")
-        // await this.page.keyboard.down('Enter');
 
+        const startDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
+        await startDate.click();
+        await this.fillDate(startDate, this.lastYear);
         await this.sleep(1);
+        
         const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
         await endDate.click();
-        await this.page.keyboard.down('Control');
-        await this.page.keyboard.down('ArrowLeft');
-        await this.page.keyboard.up('Control');
-        // await endDate.type(this.today.replaceAll("/", ""));
-        // await this.pressDate(this.page, this.today.replaceAll("/", ""));
-        await this.page.keyboard.press("Tab")
-
+        await this.fillDate(endDate, this.today);
         await this.sleep(1);
         
         await frame.select('select[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ddlPrograma"]', "TODOS");
-
-        await this.sleep(1);
+        await this.sleep(2);
 
         await frame.click('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ConsultarButton"');
 
-        await this.sleep(100);
+        await this.sleep(5);
+
+        await frame.waitForSelector('select[id="SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00"');
+        await frame.select('select#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00', 'EXCELOPENXML');
+        await frame.click('a#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl01');
+
+        let newFile = this.listTempFiles();
+        while (newFile.length == 0) {
+            await this.sleep(1);
+            newFile = this.listTempFiles();
+        }
+        
+        await this.page.bringToFront();
+        await this.sleep(3);
     }
 
     async getAgentInterested(){
@@ -186,8 +202,15 @@ export default class DataExtraction extends Utils {
         await this.waitForClick("//span[contains(@class, 'm-menu__link-text .expanded ng-star-inserted') and contains(text(), ' Relatório de Interessados ')]");
 
         await this.fillAgentForm();
-        
+    }
 
+    async getAgentInscribed(){
+
+        // await this.waitForClick("//span[contains(@class, 'm-menu__link-text ng-star-inserted') and contains(text(), ' Relatório ')]");
+        await this.sleep(1);
+        await this.waitForClick("//span[contains(@class, 'm-menu__link-text .expanded ng-star-inserted') and contains(text(), ' Relatório de Inscritos ')]");
+
+        await this.fillAgentForm();
     }
 
     async getManagerForms() {
@@ -226,6 +249,7 @@ export default class DataExtraction extends Utils {
     }
 
     async getAgentForms() {
+        let fileName;
         const agent_list = [
             "S2 - Agente de Vendas MAZZA 0 - Aracaju",
             "S2 - Agente de Vendas MAZZA 1 - Montes Claros",
@@ -234,7 +258,6 @@ export default class DataExtraction extends Utils {
         ]
 
         for (let i in agent_list) {
-            let fileName;
             const agent = agent_list[i];
 
             if (agent.includes('Macaé')) {
@@ -246,9 +269,14 @@ export default class DataExtraction extends Utils {
             await this.sleep(5);
             await this.setToProfile(agent);
             
+            console.log("Getting Interested forms");
             await this.getAgentInterested();
-
-            console.log(fileName);
+            await this.sleep(2);
+            this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
+            console.log("Getting Inscribed forms");
+            await this.getAgentInscribed();
+            await this.sleep(2);
+            this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
         }
     }
 

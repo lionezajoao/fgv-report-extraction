@@ -1,0 +1,56 @@
+{
+    "name":"",
+    "contacts":[
+        {
+            "emails": [{"email": ""}],
+            "phones": [{"phone": ""}]
+        }],
+    "deal": {
+        "name": "",
+        "deal_custom_fields":[
+            {
+                "custom_field_id":"6315fe5f764d29000ce223b7",
+                "value":""
+            },
+            {
+                "custom_field_id":"632723bc66edbc000c7ed982",
+                "value":[]
+            }
+        ]
+    },
+    "deal_stage":{
+        "id":"630fd70943612f000eeddb5c",
+        "name":"Interessado Pesquisando",
+        "nickname":"IP",
+        "order":1,
+        "configuration":[]
+    },
+    "deal_source":{
+        "id":"630fd70943612f000eeddb5a",
+        "_id":"630fd70943612f000eeddb5a",
+        "name":"Portal FGV EdEx"
+    },
+    "deal_products": [
+        {
+            "amount": 1,
+            "base_price": 1,
+            "name": "",
+            "price": 0,
+            "total": 0
+        }
+    ],
+    "campaign":{
+        "id":"630fd6a02f4700000d28eb56",
+        "_id":"630fd6a02f4700000d28eb56",
+        "name":"Sem Campanha"
+    },
+    "distribution_settings": {
+        "owner": {
+            "id": "",
+            "type": "user"
+    }},
+    "organization": {
+        "name": ""
+    },
+    "organization_segments":[]
+}

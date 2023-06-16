@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "agent": "node data_extraction/getAgentForms.js",
+    "manager": "node data_extraction/getManagerForms.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

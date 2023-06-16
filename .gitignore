@@ -1,10 +1,9 @@
 .env
-forms/*.xlsx
-temp/*.xlsx
-output/*.xlsx
+data_extraction/forms/*.xlsx
+data_extraction/temp/*.xlsx
+data_extraction/output/*.xlsx
 
-*.log
-Pipfile.lock
+data_extraction/*.log
 
-/*/__pycache__/
+data_handling/*/__pycache__/
 /node_modules
