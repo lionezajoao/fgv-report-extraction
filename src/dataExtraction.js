@@ -45,11 +45,11 @@ export default class DataExtraction extends Utils {
     }
 
     async setup() {
-        let browser;
+        this.browser;
         const baseUrl = await this.getRedirectUrl();
         if (baseUrl === "failed") throw new Error("LOGIN FAILED");
         try {
-            browser = await puppeteer.launch({
+            this.browser = await puppeteer.launch({
                 headless: "new",
                 ignoreHTTPSErrors: true,
                 executablePath: executablePath(),
@@ -61,7 +61,7 @@ export default class DataExtraction extends Utils {
                 ],
             });
 
-            this.page = await browser.newPage();
+            this.page = await this.browser.newPage();
             const client = await this.page.target().createCDPSession();
                 await client.send('Page.setDownloadBehavior', {
                 behavior: 'allow',
@@ -77,14 +77,9 @@ export default class DataExtraction extends Utils {
             })
             await this.setPageConfig();
             await this.page.goto(baseUrl);
-            await this.getManagerForms();
-            await this.getAgentForms();
             
         } catch (error) {
             throw new Error(`Proccess failed, reason: ${error}`);
-        } finally {
-            console.log("Browser closed");
-            browser?.close();
         }
     }
 
@@ -173,14 +168,14 @@ export default class DataExtraction extends Utils {
         const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
         await endDate.click();
         await this.fillDate(endDate, this.today);
-        await this.sleep(1);
+        await this.sleep(2);
         
         await frame.select('select[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ddlPrograma"]', "TODOS");
         await this.sleep(2);
 
         await frame.click('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ConsultarButton"');
 
-        await this.sleep(5);
+        await this.sleep(10);
 
         await frame.waitForSelector('select[id="SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00"');
         await frame.select('select#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00', 'EXCELOPENXML');
@@ -215,68 +210,83 @@ export default class DataExtraction extends Utils {
 
     async getManagerForms() {
 
-        await this.sleep(5);
-
-        await this.waitForElement('span.m-menu__link-text');
-
-        const manager_list = [
-            "S2 - Gestor Comercial da Unidade MAZZA 1 - Montes Claros - MAZZA01",
-            "S2 - Gestor Comercial da Unidade NMAZZA 2 - Macaé - NMAZZA01",
-            "S2 - Gestor Comercial MAZZA 0 - Aracaju",
-            "S2 -  Gestor Comercial NMAZZA 0 - Niterói ",
-        ]
-
-        for (let i in manager_list) {
-            const newFileName = manager_list[i].replace("- NMAZZA01", "").replace(" - MAZZA01", "").split("- ").at(-1);
-            await this.setToProfile(manager_list[i]);
-            await this.waitForElement('span.m-menu__link-text.ng-star-inserted');
-            await this.waitForClick(
-                "//span[contains(@class, 'm-menu__link-text ng-star-inserted') and contains(text(), ' Comercial - Relatórios ')]"
-            );
-            await this.sleep(1);
-            await this.waitForClick("//*[contains(text(),'Inscritos/ Interessados')]");
-            await this.handlerManagerMethod();
-            
-            let fileName = this.listTempFiles()[0];
-            this.renameFile(`${ this.path }/temp/${ fileName }`, `${ this.path }/forms/${ newFileName } - ${ fileName }`)
-            await this.handlerManagerMethod(true);
-            
-            fileName = this.listTempFiles()[0];
-            this.renameFile(`${ this.path }/temp/${ fileName }`, `${ this.path }/forms/${ newFileName } - ${ fileName }`)
-
-            await this.sleep(2);
+        try {
+            await this.sleep(5);
+    
+            await this.waitForElement('span.m-menu__link-text');
+    
+            const manager_list = [
+                "S2 - Gestor Comercial da Unidade MAZZA 1 - Montes Claros - MAZZA01",
+                "S2 - Gestor Comercial da Unidade NMAZZA 2 - Macaé - NMAZZA01",
+                "S2 - Gestor Comercial MAZZA 0 - Aracaju",
+                "S2 -  Gestor Comercial NMAZZA 0 - Niterói ",
+            ]
+    
+            for (let i in manager_list) {
+                const newFileName = manager_list[i].replace("- NMAZZA01", "").replace(" - MAZZA01", "").split("- ").at(-1);
+                await this.setToProfile(manager_list[i]);
+                await this.waitForElement('span.m-menu__link-text.ng-star-inserted');
+                await this.waitForClick(
+                    "//span[contains(@class, 'm-menu__link-text ng-star-inserted') and contains(text(), ' Comercial - Relatórios ')]"
+                );
+                await this.sleep(1);
+                await this.waitForClick("//*[contains(text(),'Inscritos/ Interessados')]");
+                await this.handlerManagerMethod();
+                
+                let fileName = this.listTempFiles()[0];
+                this.renameFile(`${ this.path }/temp/${ fileName }`, `${ this.path }/forms/${ newFileName } - ${ fileName }`)
+                await this.handlerManagerMethod(true);
+                
+                fileName = this.listTempFiles()[0];
+                this.renameFile(`${ this.path }/temp/${ fileName }`, `${ this.path }/forms/${ newFileName } - ${ fileName }`)
+    
+                await this.sleep(2);
+            }
+        } catch (err) {
+            console.log(err)
+        } finally {
+            console.log("Browser closed");
+            this.browser?.close();
         }
+
     }
 
     async getAgentForms() {
-        let fileName;
-        const agent_list = [
-            "S2 - Agente de Vendas MAZZA 0 - Aracaju",
-            "S2 - Agente de Vendas MAZZA 1 - Montes Claros",
-            "S2 - Agente de Vendas NMAZZA 0 - Niterói",
-            "S2 – Agente de vendas NMAZZA 1 – Macaé "
-        ]
+        try {
+            let fileName;
+            const agent_list = [
+                "S2 - Agente de Vendas MAZZA 0 - Aracaju",
+                "S2 - Agente de Vendas MAZZA 1 - Montes Claros",
+                "S2 - Agente de Vendas NMAZZA 0 - Niterói",
+                "S2 – Agente de vendas NMAZZA 1 – Macaé "
+            ]
 
-        for (let i in agent_list) {
-            const agent = agent_list[i];
+            for (let i in agent_list) {
+                const agent = agent_list[i];
 
-            if (agent.includes('Macaé')) {
-                fileName = agent.split(" – ").at(-1);
-            } else {
-                fileName = agent.split(" - ").at(-1);
+                if (agent.includes('Macaé')) {
+                    fileName = agent.split(" – ").at(-1);
+                } else {
+                    fileName = agent.split(" - ").at(-1);
+                }
+
+                await this.sleep(10);
+                await this.setToProfile(agent);
+                
+                console.log("Getting Interested forms");
+                await this.getAgentInterested();
+                await this.sleep(2);
+                this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
+                console.log("Getting Inscribed forms");
+                await this.getAgentInscribed();
+                await this.sleep(2);
+                this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
             }
-
-            await this.sleep(5);
-            await this.setToProfile(agent);
-            
-            console.log("Getting Interested forms");
-            await this.getAgentInterested();
-            await this.sleep(2);
-            this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
-            console.log("Getting Inscribed forms");
-            await this.getAgentInscribed();
-            await this.sleep(2);
-            this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
+        } catch (err) {
+            console.log(err)
+        } finally {
+            console.log("Browser closed");
+            this.browser?.close();
         }
     }
 

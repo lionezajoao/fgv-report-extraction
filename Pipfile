@@ -4,8 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pandas = "*"
+openpyxl = "*"
+requests = "*"
+python-dotenv = "*"
+python-decouple = "*"
+numpy = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3"

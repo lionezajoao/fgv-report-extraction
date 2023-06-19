@@ -1,9 +1,9 @@
 .env
-data_extraction/forms/*.xlsx
-data_extraction/temp/*.xlsx
-data_extraction/output/*.xlsx
+forms/*.xlsx
+temp/*.xlsx
+output/*.xlsx
 
-data_extraction/*.log
+*.log
 
-data_handling/*/__pycache__/
+/*/__pycache__/
 /node_modules
