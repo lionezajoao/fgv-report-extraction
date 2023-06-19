@@ -33,15 +33,15 @@ main() {
     dir_list=("temp" "forms" "output")
 
     # Removing old files
-    # for i in "${dir_list[@]}";
-    #     do
-    #         check_dir "$script_path/$i"
-    #         remove_xlsx_files "$script_path/$i"
-    #     done
+    for i in "${dir_list[@]}";
+        do
+            check_dir "$script_path/$i"
+            remove_xlsx_files "$script_path/$i"
+        done
 
-    # # Running extraction routines
-    # npm run agent
-    # npm run manager
+    # Running extraction routines
+    npm run agent
+    npm run manager
 
     # Running data handling routines
     if [ $(find "$script_path/forms" | grep xlsx | wc -l) == 16 ];
