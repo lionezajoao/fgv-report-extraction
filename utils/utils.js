@@ -3,7 +3,7 @@ import fs from "fs";
 export default class Utils {
     constructor() {
         this.setDateScope();
-        this.path = `${ process.env.PWD }/data_extraction`;
+        this.path = `${ process.env.PWD }`;
     }
 
     setDateScope() {

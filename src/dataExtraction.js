@@ -50,7 +50,7 @@ export default class DataExtraction extends Utils {
         if (baseUrl === "failed") throw new Error("LOGIN FAILED");
         try {
             this.browser = await puppeteer.launch({
-                headless: "new",
+                headless: false,
                 ignoreHTTPSErrors: true,
                 executablePath: executablePath(),
                 args: [
@@ -87,7 +87,7 @@ export default class DataExtraction extends Utils {
         await this.sleep(1);
         await this.page.waitForXPath(xpath, {
             visible: true,
-            timeout: 20000
+            timeout: 15000
         });
         await( await this.page.$x(xpath))[0].click();
     }
@@ -168,7 +168,7 @@ export default class DataExtraction extends Utils {
         const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
         await endDate.click();
         await this.fillDate(endDate, this.today);
-        await this.sleep(2);
+        await this.sleep(5);
         
         await frame.select('select[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ddlPrograma"]', "TODOS");
         await this.sleep(2);
@@ -177,7 +177,7 @@ export default class DataExtraction extends Utils {
 
         await this.sleep(10);
 
-        await frame.waitForSelector('select[id="SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00"');
+        // await frame.waitForSelector('select[id="SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00"');
         await frame.select('select#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00', 'EXCELOPENXML');
         await frame.click('a#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl01');
 
@@ -201,7 +201,6 @@ export default class DataExtraction extends Utils {
 
     async getAgentInscribed(){
 
-        // await this.waitForClick("//span[contains(@class, 'm-menu__link-text ng-star-inserted') and contains(text(), ' Relatório ')]");
         await this.sleep(1);
         await this.waitForClick("//span[contains(@class, 'm-menu__link-text .expanded ng-star-inserted') and contains(text(), ' Relatório de Inscritos ')]");
 
@@ -211,7 +210,7 @@ export default class DataExtraction extends Utils {
     async getManagerForms() {
 
         try {
-            await this.sleep(5);
+            await this.sleep(10);
     
             await this.waitForElement('span.m-menu__link-text');
     
@@ -270,7 +269,7 @@ export default class DataExtraction extends Utils {
                     fileName = agent.split(" - ").at(-1);
                 }
 
-                await this.sleep(10);
+                await this.sleep(15);
                 await this.setToProfile(agent);
                 
                 console.log("Getting Interested forms");

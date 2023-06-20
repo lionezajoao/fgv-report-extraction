@@ -71,3 +71,5 @@ if __name__ == "__main__":
                 print('\n')
         else:
             handler.logger.warning(f"Deal { payload_data['name'] } already exists")
+
+    handler.send_email()
