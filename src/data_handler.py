@@ -15,6 +15,7 @@ class DataHandler(Utils):
         return pd.to_datetime(date, format='mixed', dayfirst=True)
     
     def handle_date_type(self, data, key):
+        print(data)
         data[key] = self.parse_date(data[key])
 
     def handle_course_method(self, data:str) -> str:

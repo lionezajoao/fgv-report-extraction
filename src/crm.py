@@ -77,6 +77,13 @@ class CRM:
 
         return output_list
     
+    # Fix this method with user role and define
+    # vendor id within rd_input sheet
+    def list_active_users(self):
+        data = requests.get(f"{ self.base_url }/users?token={ self.token }").json()
+        # list(filter(lambda x:x["name"] if x["active"] and x[""]))
+        return
+    
     def get_user_id(self, username: str) -> str or None:
         data = requests.get(f"{ self.base_url }/users?token={ self.token }").json()
         for user in data["users"]:

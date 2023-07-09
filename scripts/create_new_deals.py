@@ -41,7 +41,7 @@ if __name__ == "__main__":
                 custom_field['value'] = [handler.handle_course_method(mode)]
 
         payload_data['contacts'][0]['name'] = row[1].get("NOME DE CONTATO")
-        payload_data['contacts'][0]['phones'][0]['phone'] = row[1].get("TELEFONE") if not pd.isnull(row[1].get("TELEFONE")) else ""
+        payload_data['contacts'][0]['phones'][0]['phone'] = str(row[1].get("TELEFONE")) if not pd.isnull(row[1].get("TELEFONE")) else ""
         payload_data['contacts'][0]['emails'][0]['email'] = row[1].get("EMAIL") if not pd.isnull(row[1].get("EMAIL")) else ""
         
         payload_data["distribution_settings"]['owner']['id'] = vendor_id

@@ -34,7 +34,26 @@ export default class Utils {
                 console.log(`File renamed`)
             }
         })
-
-        // fs.unlinkSync(oldPath);
     } 
+
+    async retry(func, ...args) {
+        let currentTry = 0;
+    
+        while(true) {
+            try {
+                await func(...args);
+                console.log("Succeeded!");
+                break;
+            } catch (error) {
+                currentTry++;
+                console.log(`Failed attempt ${ currentTry }, reason: ${ error }`);
+    
+                if(currentTry >= 10) {
+                    console.log("Retry maximum reached. Exiting");
+                    break;
+                }
+            }
+        }  
+    }
+         
 }

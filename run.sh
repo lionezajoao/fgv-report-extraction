@@ -27,20 +27,23 @@ remove_xlsx_files() {
 
 main() {
 
+    echo "Initializing process"
     script_path="$(cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
     export PYTHONPATH=$script_path
 
     dir_list=("temp" "forms" "output")
 
-    # Removing old files
+    echo "Removing old files"
     for i in "${dir_list[@]}";
         do
             check_dir "$script_path/$i"
             remove_xlsx_files "$script_path/$i"
         done
 
-    # Running extraction routines
+    echo "Running extraction routines"
+    
     npm run agent
+    sleep 5
     npm run manager
 
     # Running data handling routines

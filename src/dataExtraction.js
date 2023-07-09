@@ -25,6 +25,7 @@ export default class DataExtraction extends Utils {
     }
 
     async getRedirectUrl() {
+        console.log("Trying to log in")
         const response = await axios.post(process.env.URL, {
             "ApplicationId": "eb1e7422-2d0f-45a2-ab02-f49bd82c8e8d",
             "ReturnUrl": "",
@@ -49,8 +50,10 @@ export default class DataExtraction extends Utils {
         const baseUrl = await this.getRedirectUrl();
         if (baseUrl === "failed") throw new Error("LOGIN FAILED");
         try {
+            await this.sleep(10);
+            console.log("Login successful")
             this.browser = await puppeteer.launch({
-                headless: false,
+                headless: "new",
                 ignoreHTTPSErrors: true,
                 executablePath: executablePath(),
                 args: [
@@ -223,6 +226,7 @@ export default class DataExtraction extends Utils {
     
             for (let i in manager_list) {
                 const newFileName = manager_list[i].replace("- NMAZZA01", "").replace(" - MAZZA01", "").split("- ").at(-1);
+                await this.sleep(15);
                 await this.setToProfile(manager_list[i]);
                 await this.waitForElement('span.m-menu__link-text.ng-star-inserted');
                 await this.waitForClick(
@@ -242,10 +246,7 @@ export default class DataExtraction extends Utils {
                 await this.sleep(2);
             }
         } catch (err) {
-            console.log(err)
-        } finally {
-            console.log("Browser closed");
-            this.browser?.close();
+            console.log("ERROR", err)
         }
 
     }
@@ -283,9 +284,6 @@ export default class DataExtraction extends Utils {
             }
         } catch (err) {
             console.log(err)
-        } finally {
-            console.log("Browser closed");
-            this.browser?.close();
         }
     }
 
