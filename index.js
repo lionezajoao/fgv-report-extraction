@@ -1,8 +1,35 @@
 import DataExtraction from "./src/dataExtraction.js";
 
-const data = async () => {
-    const extract = new DataExtraction();
-    await extract.setup();
+const setupBrowser = async(lib) => {
+    await lib.setup();
+}
+const getAgents = async(lib) => {
+    try {
+        await setupBrowser(lib);
+        await lib.getAgentForms();
+        await lib?.browser?.close();
+    } catch(err) {
+        console.log("An error ocurred, trying again", err);
+        await getAgents(lib);
+    }
 }
 
-data()
+const getManagers = async (lib) => {
+    try {
+        await setupBrowser(lib);
+        await lib.getManagerForms();
+        await lib?.browser?.close();
+    } catch(err) {
+        console.log("An error ocurred, trying again", err);
+        await getManagers(lib);
+    }
+    
+}
+
+const main = async () => {
+    const lib = new DataExtraction();
+    await getAgents(lib);
+    await getManagers(lib); 
+}
+
+main()

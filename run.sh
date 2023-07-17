@@ -42,9 +42,7 @@ main() {
 
     echo "Running extraction routines"
     
-    npm run agent
-    sleep 5
-    npm run manager
+    npm start
 
     # Running data handling routines
     if [ $(find "$script_path/forms" | grep xlsx | wc -l) == 16 ];
