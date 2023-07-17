@@ -51,6 +51,11 @@ class Utils:
             ).stdout,
             capture_output=True).stdout.decode('utf-8')
     
+    def format_phone(self, phone:str):
+        if phone:
+            phone = phone.translate(str.maketrans("", "", "()\- "))
+        return phone
+    
     def send_email(self):
 
         msg = MIMEMultipart()

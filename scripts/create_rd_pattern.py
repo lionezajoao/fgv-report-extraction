@@ -27,7 +27,7 @@ if __name__ == "__main__":
             "NOME DA EMPRESA": v.get("Empresa") if not pd.isnull(v.get("Empresa")) else "Não informado",
             "NOME DA OPORTUNIDADE": v.get("Nome"),
             "EMAIL": v.get("E-mail") if not pd.isnull(v.get("E-mail")) else v.get("Email"),
-            "TELEFONE": v.get("Celular"),
+            "TELEFONE": data_handler.format_phone(str(v.get("Celular"))) if v.get("Celular") is not None else None,
             "PRAÇA": data_handler.handle_city_name(v.get("OG")),
             "CPF": v.get("CPF / Passaporte") if not pd.isnull(v.get("CPF / Passaporte")) else v.get("CPF/Passaporte"),
             "MODALIDADE": v.get("Programa") if not pd.isnull(v.get("Programa")) else "Presencial",
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     output_list = crm.remove_open_deals(rows)
     
-    output_data = pd.DataFrame(output_list).drop_duplicates(subset=['NOME DE CONTATO'])
+    output_data = pd.DataFrame(output_list).drop_duplicates(subset=['NOME DE CONTATO', "TELEFONE", "EMAIL"])
     
     aux = []
     for index, row in output_data.iterrows():
