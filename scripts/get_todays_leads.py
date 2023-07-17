@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # Timedelta +1 to get end_date as the next day, but midnight
     end_date = datetime.strptime(datetime.today().strftime('%d/%m/%Y'), '%d/%m/%Y') + timedelta(days=1)
     # BDay(2) to get the previous business day
-    start_date = end_date - BDay(30)
+    start_date = end_date - BDay(3)
 
     (data
         .loc[lambda x: x["data_cadastro"] >= start_date]
