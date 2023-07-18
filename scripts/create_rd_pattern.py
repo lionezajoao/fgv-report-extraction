@@ -27,7 +27,7 @@ if __name__ == "__main__":
             "NOME DA EMPRESA": v.get("Empresa") if not pd.isnull(v.get("Empresa")) else "Não informado",
             "NOME DA OPORTUNIDADE": v.get("Nome"),
             "EMAIL": v.get("E-mail") if not pd.isnull(v.get("E-mail")) else v.get("Email"),
-            "TELEFONE": data_handler.format_phone(str(v.get("Celular"))) if v.get("Celular") is not None else None,
+            "TELEFONE": data_handler.format_phone(str(v.get("Celular"))) if v.get("Celular") is not None else "",
             "PRAÇA": data_handler.handle_city_name(v.get("OG")),
             "CPF": v.get("CPF / Passaporte") if not pd.isnull(v.get("CPF / Passaporte")) else v.get("CPF/Passaporte"),
             "MODALIDADE": v.get("Programa") if not pd.isnull(v.get("Programa")) else "Presencial",
@@ -41,8 +41,11 @@ if __name__ == "__main__":
         rows.append(row)
 
     output_list = crm.remove_open_deals(rows)
+    logger.info(f"Before duplicate removal: { len(output_list) }")
     
-    output_data = pd.DataFrame(output_list).drop_duplicates(subset=['NOME DE CONTATO', "TELEFONE", "EMAIL"])
+    output_data = pd.DataFrame(output_list)\
+        .drop_duplicates(subset=["TELEFONE"])\
+        .drop_duplicates(subset=["NOME DE CONTATO"])
     
     aux = []
     for index, row in output_data.iterrows():
@@ -56,6 +59,6 @@ if __name__ == "__main__":
                 vendor_list = aux
                 aux = []
 
-    logger.info(f"Creating sheet with { len(output_list) } new leads")
+    logger.info(f"Creating sheet with { len(output_data.index) } new leads")
     output_data.to_excel(output, index=None)
     output.close()

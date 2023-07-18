@@ -53,9 +53,9 @@ export default class DataExtraction extends Utils {
             await this.sleep(10);
             console.log("Login successful")
             this.browser = await puppeteer.launch({
-                // headless: "new",
-                headless: false,
-                devtools: true,
+                headless: "new",
+                // headless: false,
+                // devtools: true,
                 ignoreHTTPSErrors: true,
                 executablePath: executablePath(),
                 args: [
@@ -107,7 +107,7 @@ export default class DataExtraction extends Utils {
 
     async switchToFrame(){
         try {
-            await this.sleep(1);
+            await this.sleep(5);
             await this.waitForElement('iframe');
             return await (await this.page.$('iframe')).contentFrame();
         } catch(err) {
@@ -138,35 +138,29 @@ export default class DataExtraction extends Utils {
     }
 
     async handlerManagerMethod(interested=null) {
-        try {
-            console.log("Getting form");
-            const frame = await this.switchToFrame();
-            await frame.waitForSelector('select[id="S#SistemaContentPlaceHolder_ddlAno');
-            await frame.select('#SistemaContentPlaceHolder_ddlAno', '2023');
+        console.log("Getting form");
+        const frame = await this.switchToFrame();
+        await frame.select('#SistemaContentPlaceHolder_ddlAno', '2023');
 
-            await this.sleep(2);
-            
-            if(interested) {
-                await( await frame.$('xpath/' + '//*[@type="radio" and @value="2"]')).click();
-            };
+        await this.sleep(2);
+        
+        if(interested) {
+            await( await frame.$('xpath/' + '//*[@type="radio" and @value="2"]')).click();
+        };
 
-            await( await frame.$('xpath/' + '//*[@value="Consultar"]')).click();
-            await this.sleep(10);
+        await( await frame.$('xpath/' + '//*[@value="Consultar"]')).click();
+        await this.sleep(10);
 
-            await( await frame.$('#ctl00_SistemaContentPlaceHolder_rptCandidatosIncritos_ctl05_ctl04_ctl00_Button')).click();
-            await( await frame.$('a[title="EXCEL"]') ).click();
-            let newFile = this.listTempFiles();
-            while (newFile.length == 0) {
-                await this.sleep(1);
-                newFile = this.listTempFiles();
-            }
-            await frame.click('input[name="ctl00$SistemaContentPlaceHolder$btnVoltar"]');
-            await this.page.bringToFront();
-            await this.sleep(5);
-        } catch(err) {
-            console.log("An error ocurred, trying again", err);
-            await this.handlerManagerMethod(interested);
+        await( await frame.$('#ctl00_SistemaContentPlaceHolder_rptCandidatosIncritos_ctl05_ctl04_ctl00_Button')).click();
+        await( await frame.$('a[title="EXCEL"]') ).click();
+        let newFile = this.listTempFiles();
+        while (newFile.length == 0) {
+            await this.sleep(1);
+            newFile = this.listTempFiles();
         }
+        await frame.click('input[name="ctl00$SistemaContentPlaceHolder$btnVoltar"]');
+        await this.page.bringToFront();
+        await this.sleep(5);
     }
 
     async fillDate(elem, date) {
@@ -176,44 +170,40 @@ export default class DataExtraction extends Utils {
     } 
 
     async fillAgentForm() {
-        try {
-            const frame  = await this.switchToFrame();
+        
+        const frame  = await this.switchToFrame();
 
-            await frame.waitForSelector('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
+        await frame.waitForSelector('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
 
-            const startDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
-            await startDate.click();
-            await this.fillDate(startDate, this.lastYear);
+        const startDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
+        await startDate.click();
+        await this.fillDate(startDate, this.lastYear);
+        await this.sleep(1);
+        
+        const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
+        await endDate.click();
+        await this.fillDate(endDate, this.today);
+        await this.sleep(5);
+        
+        await frame.select('select[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ddlPrograma"]', "TODOS");
+        await this.sleep(2);
+
+        await frame.click('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ConsultarButton"');
+
+        await this.sleep(10);
+
+        await frame.select('select#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00', 'EXCELOPENXML');
+        await frame.click('a#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl01');
+
+        let newFile = this.listTempFiles();
+        while (newFile.length == 0) {
             await this.sleep(1);
-            
-            const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
-            await endDate.click();
-            await this.fillDate(endDate, this.today);
-            await this.sleep(5);
-            
-            await frame.select('select[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ddlPrograma"]', "TODOS");
-            await this.sleep(2);
-
-            await frame.click('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_ConsultarButton"');
-
-            await this.sleep(10);
-
-            // await frame.waitForSelector('select[id="SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00"');
-            await frame.select('select#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl00', 'EXCELOPENXML');
-            await frame.click('a#SistemaContentPlaceHolder_ReportInteressados_ctl01_ctl05_ctl01');
-
-            let newFile = this.listTempFiles();
-            while (newFile.length == 0) {
-                await this.sleep(1);
-                newFile = this.listTempFiles();
-            }
-            
-            await this.page.bringToFront();
-            await this.sleep(3);
-        } catch(err) {
-            console.log("An error ocurred, trying again", err);
-            await this.fillAgentForm();
+            newFile = this.listTempFiles();
         }
+        
+        await this.page.bringToFront();
+        await this.sleep(3);
+        
         
     }
 
@@ -241,23 +231,12 @@ export default class DataExtraction extends Utils {
         
     }
 
-    async getManagerForms() {
+    async getManagerFormsbyProfile(profileName) {
 
-        await this.sleep(10);
-
-        await this.waitForElement('span.m-menu__link-text');
-
-        const manager_list = [
-            "S2 - Gestor Comercial da Unidade MAZZA 1 - Montes Claros - MAZZA01",
-            "S2 - Gestor Comercial da Unidade NMAZZA 2 - Macaé - NMAZZA01",
-            "S2 - Gestor Comercial MAZZA 0 - Aracaju",
-            "S2 -  Gestor Comercial NMAZZA 0 - Niterói ",
-        ]
-
-        for (let i in manager_list) {
-            const newFileName = manager_list[i].replace("- NMAZZA01", "").replace(" - MAZZA01", "").split("- ").at(-1);
+        try {
+            const newFileName = profileName.replace("- NMAZZA01", "").replace(" - MAZZA01", "").split("- ").at(-1);
             await this.sleep(15);
-            await this.setToProfile(manager_list[i]);
+            await this.setToProfile(profileName);
             await this.waitForElement('span.m-menu__link-text.ng-star-inserted');
             await this.page.goto("https://sigaiwi.fgv.br/acad/hub/app/main/pagina/NTU4Mg%3D%3D");
             await this.handlerManagerMethod();
@@ -268,47 +247,82 @@ export default class DataExtraction extends Utils {
             
             fileName = this.listTempFiles()[0];
             this.renameFile(`${ this.path }/temp/${ fileName }`, `${ this.path }/forms/${ newFileName } - ${ fileName }`)
-
+    
             await this.sleep(2);
+        } catch(err) {
+            console.log("An error ocurred", err);
+            this.browser?.close()
+            await this.setup();
+            await this.getManagerFormsbyProfile(profileName);
         }
 
+    }
+
+    async getManagerForms() {
+
+        await this.setup();
+
+        const manager_list = [
+            "S2 - Gestor Comercial da Unidade MAZZA 1 - Montes Claros - MAZZA01",
+            "S2 - Gestor Comercial da Unidade NMAZZA 2 - Macaé - NMAZZA01",
+            "S2 - Gestor Comercial MAZZA 0 - Aracaju",
+            "S2 -  Gestor Comercial NMAZZA 0 - Niterói ",
+        ]
+
+        for (let i in manager_list) {
+            await this.getManagerFormsbyProfile(manager_list[i]);
+        }
+
+        await this.browser?.close()
+
+    }
+
+    async getAgentFormsByProfile(profileName) {
+        
+        try {
+
+            let fileName;
+            if (profileName.includes('Macaé')) {
+                fileName = profileName.split(" – ").at(-1);
+            } else {
+                fileName = profileName.split(" - ").at(-1);
+            }
+    
+            await this.sleep(15);
+            await this.setToProfile(profileName);
+            
+            console.log("Getting Interested forms");
+            await this.getAgentInterested();
+            await this.sleep(2);
+            this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
+            console.log("Getting Inscribed forms");
+            await this.getAgentInscribed();
+            await this.sleep(2);
+            this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
+        } catch(err) {
+            console.log("An error ocurred", err);
+            this.browser?.close()
+            await this.setup();
+            await this.getAgentFormsByProfile(profileName);
+        }     
     }
 
     async getAgentForms() {
-        try {
-            let fileName;
-            const agent_list = [
-                "S2 - Agente de Vendas MAZZA 0 - Aracaju",
-                "S2 - Agente de Vendas MAZZA 1 - Montes Claros",
-                "S2 - Agente de Vendas NMAZZA 0 - Niterói",
-                "S2 – Agente de vendas NMAZZA 1 – Macaé "
-            ]
-
-            for (let i in agent_list) {
-                const agent = agent_list[i];
-
-                if (agent.includes('Macaé')) {
-                    fileName = agent.split(" – ").at(-1);
-                } else {
-                    fileName = agent.split(" - ").at(-1);
-                }
-
-                await this.sleep(15);
-                await this.setToProfile(agent);
-                
-                console.log("Getting Interested forms");
-                await this.getAgentInterested();
-                await this.sleep(2);
-                this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
-                console.log("Getting Inscribed forms");
-                await this.getAgentInscribed();
-                await this.sleep(2);
-                this.renameFile(`${ this.path }/temp/${  this.listTempFiles()[0] }`, `${ this.path }/forms/Agente de Vendas - ${ fileName } - ${ this.listTempFiles()[0] }`)
-            }
-        } catch (err) {
-            console.log(err)
-        }
-    }
-
         
-    }
+        await this.setup();
+        const agent_list = [
+            "S2 - Agente de Vendas MAZZA 0 - Aracaju",
+            "S2 - Agente de Vendas MAZZA 1 - Montes Claros",
+            "S2 - Agente de Vendas NMAZZA 0 - Niterói",
+            "S2 – Agente de vendas NMAZZA 1 – Macaé "
+        ]
+
+        for (let i in agent_list) {
+            const agent = agent_list[i];
+            await this.getAgentFormsByProfile(agent);
+        }
+
+        await this.browser?.close()
+    
+    }        
+}

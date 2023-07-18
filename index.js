@@ -1,11 +1,8 @@
 import DataExtraction from "./src/dataExtraction.js";
 
-const setupBrowser = async(lib) => {
-    await lib.setup();
-}
+
 const getAgents = async(lib) => {
     try {
-        await setupBrowser(lib);
         await lib.getAgentForms();
         await lib?.browser?.close();
     } catch(err) {
@@ -16,7 +13,6 @@ const getAgents = async(lib) => {
 
 const getManagers = async (lib) => {
     try {
-        await setupBrowser(lib);
         await lib.getManagerForms();
         await lib?.browser?.close();
     } catch(err) {
