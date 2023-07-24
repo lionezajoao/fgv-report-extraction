@@ -253,6 +253,7 @@ export default class DataExtraction extends Utils {
             console.log("An error ocurred", err);
             this.browser?.close()
             await this.setup();
+            await this.setToProfile(profileName);
             await this.getManagerFormsbyProfile(profileName);
         }
 
