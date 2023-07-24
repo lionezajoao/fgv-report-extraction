@@ -171,6 +171,7 @@ export default class DataExtraction extends Utils {
 
     async fillAgentForm() {
         
+        await this.sleep(10);
         const frame  = await this.switchToFrame();
 
         await frame.waitForSelector('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
