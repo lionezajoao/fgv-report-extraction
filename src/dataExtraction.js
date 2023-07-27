@@ -149,10 +149,18 @@ export default class DataExtraction extends Utils {
         };
 
         await( await frame.$('xpath/' + '//*[@value="Consultar"]')).click();
-        await this.sleep(10);
+        await this.sleep(2);
+
+        let elem = await frame.$(".caixa-aguarde-centro");
+        while( await elem.isVisible() ) {
+            await this.sleep(1);
+            elem = await frame.$(".caixa-aguarde-centro");
+        }
 
         await( await frame.$('#ctl00_SistemaContentPlaceHolder_rptCandidatosIncritos_ctl05_ctl04_ctl00_Button')).click();
+        await this.sleep(2);
         await( await frame.$('a[title="EXCEL"]') ).click();
+        
         let newFile = this.listTempFiles();
         while (newFile.length == 0) {
             await this.sleep(1);
@@ -179,7 +187,7 @@ export default class DataExtraction extends Utils {
         const startDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataInicio"]');
         await startDate.click();
         await this.fillDate(startDate, this.lastYear);
-        await this.sleep(1);
+        await this.sleep(2);
         
         const endDate = await frame.$('input[id="SistemaContentPlaceHolder_UC_FiltroRelatorio_txtDataTermino"]');
         await endDate.click();
@@ -254,7 +262,6 @@ export default class DataExtraction extends Utils {
             console.log("An error ocurred", err);
             this.browser?.close()
             await this.setup();
-            await this.setToProfile(profileName);
             await this.getManagerFormsbyProfile(profileName);
         }
 

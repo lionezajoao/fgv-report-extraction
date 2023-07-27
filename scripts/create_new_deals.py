@@ -16,7 +16,10 @@ if __name__ == "__main__":
     product_data = crm.get_products()
     
     raw_data = pd.read_excel(f"{ handler.path }/output/{ file_name }")
+    raw_data["TELEFONE"] = raw_data["TELEFONE"].astype(str)
     for row in raw_data.iterrows():
+
+        phone = row[1].get("TELEFONE").split('.')[0] if row[1].get("TELEFONE").split('.')[0] != 'nan' else ""
 
         note_text = row[1].get("Anotação") if not pd.isnull(row[1].get("Anotação")) else ""
 
@@ -41,7 +44,7 @@ if __name__ == "__main__":
                 custom_field['value'] = [handler.handle_course_method(mode)]
 
         payload_data['contacts'][0]['name'] = row[1].get("NOME DE CONTATO")
-        payload_data['contacts'][0]['phones'][0]['phone'] = str(row[1].get("TELEFONE")) if not pd.isnull(row[1].get("TELEFONE")) else ""
+        payload_data['contacts'][0]['phones'][0]['phone'] = phone
         payload_data['contacts'][0]['emails'][0]['email'] = row[1].get("EMAIL") if not pd.isnull(row[1].get("EMAIL")) else ""
         
         payload_data["distribution_settings"]['owner']['id'] = vendor_id
@@ -72,4 +75,15 @@ if __name__ == "__main__":
         else:
             handler.logger.warning(f"Deal { payload_data['name'] } already exists")
 
-    handler.send_email()
+    email_payload =  """\
+            <html>
+            <head></head>
+            <body>
+                {0}
+            </body>
+            </html>
+        """.format(raw_data.pivot_table(index=["RESPONSAVEL"], columns=["PRAÇA"], values="NOME DE CONTATO", aggfunc='count', fill_value=0).to_html())
+
+    handler.send_email(email_payload)
+
+

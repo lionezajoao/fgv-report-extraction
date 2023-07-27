@@ -45,6 +45,7 @@ if __name__ == "__main__":
     
     output_data = pd.DataFrame(output_list)\
         .drop_duplicates(subset=["TELEFONE"])\
+        .drop_duplicates(subset=["EMAIL"])\
         .drop_duplicates(subset=["NOME DE CONTATO"])
     
     aux = []

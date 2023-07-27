@@ -56,7 +56,7 @@ class Utils:
             phone = phone.translate(str.maketrans("", "", "()\- "))
         return phone
     
-    def send_email(self):
+    def send_email(self, html):
 
         msg = MIMEMultipart()
         msg['Subject'] = f'SIGA data extraction { datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S") }' 
@@ -66,7 +66,10 @@ class Utils:
         msg.attach(MIMEText(textwrap.dedent(f"""\
         Segue em anexo as planilhas extraídas via automação do SIGA.
         Email enviado automaticamente em { datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S") }
+        Resumo dos novos leads
         """)))
+        msg.attach(MIMEText(html, "html"))
+
 
         files = self.list_all_files(f"{ self.path }/output", ".xlsx")
 
@@ -85,7 +88,6 @@ class Utils:
         smtp.starttls()
         smtp.login(config("SENDER"), config("SENDER_PASS"))
         response = smtp.sendmail(config("SENDER"), config("RECIEVER"), msg.as_string())
-        print(response)
         smtp.quit()
 
 
